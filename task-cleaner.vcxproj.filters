@@ -34,6 +34,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="config.json" />
+    <CopyFileToFolders Include="config.json" />
   </ItemGroup>
 </Project>

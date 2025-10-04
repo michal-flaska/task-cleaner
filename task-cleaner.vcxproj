@@ -152,7 +152,9 @@
     <ClInclude Include="src\process-monitor.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="config.json" />
+    <CopyFileToFolders Include="config.json">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
