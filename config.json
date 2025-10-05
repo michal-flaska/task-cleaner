@@ -1,0 +1,7 @@
+{
+  "processes": [
+    "calc.exe",
+    "notepad.exe"
+  ],
+  "check_interval_ms": 1000
+}
