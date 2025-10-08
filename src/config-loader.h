@@ -3,8 +3,8 @@
 #include <vector>
 
 struct Config {
-	std::vector<std::string> processes{};
-	int check_interval_ms = 1000;
+	std::vector<std::string> processes;
+	int check_interval_ms;
 };
 
 class ConfigLoader {
