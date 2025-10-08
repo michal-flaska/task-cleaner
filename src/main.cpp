@@ -5,40 +5,52 @@
 #include <thread>
 #include <chrono>
 
-void HideConsoleWindow() {
-	HWND hwnd = GetConsoleWindow();
-	ShowWindow(hwnd, SW_HIDE);
-}
-
 bool IsRegisteredInStartup() {
 	HKEY hKey;
-	if (RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
-		char value[MAX_PATH];
-		DWORD size = sizeof(value);
-		bool exists = RegQueryValueExA(hKey, "TaskCleaner", NULL, NULL, (LPBYTE)value, &size) == ERROR_SUCCESS;
-		RegCloseKey(hKey);
-		return exists;
+	if (RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_READ, &hKey) != ERROR_SUCCESS) {
+		return false;
 	}
-	return false;
+
+	char value[MAX_PATH];
+	DWORD size = sizeof(value);
+	bool exists = RegQueryValueExA(hKey, "TaskCleaner", NULL, NULL, (LPBYTE)value, &size) == ERROR_SUCCESS;
+	RegCloseKey(hKey);
+	return exists;
 }
 
-void RegisterStartup() {
+bool RegisterStartup() {
 	char exePath[MAX_PATH];
-	GetModuleFileNameA(NULL, exePath, MAX_PATH);
+	if (!GetModuleFileNameA(NULL, exePath, MAX_PATH)) {
+		return false;
+	}
 
 	HKEY hKey;
-	if (RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_WRITE, &hKey) == ERROR_SUCCESS) {
-		RegSetValueExA(hKey, "TaskCleaner", 0, REG_SZ, (LPBYTE)exePath, (DWORD)strlen(exePath) + 1);
-		RegCloseKey(hKey);
+	if (RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_WRITE, &hKey) != ERROR_SUCCESS) {
+		return false;
+	}
+
+	LONG result = RegSetValueExA(hKey, "TaskCleaner", 0, REG_SZ, (LPBYTE)exePath, (DWORD)strlen(exePath) + 1);
+	RegCloseKey(hKey);
+	return result == ERROR_SUCCESS;
+}
+
+void HideConsoleWindow() {
+	HWND hwnd = GetConsoleWindow();
+	if (hwnd != NULL) {
+		ShowWindow(hwnd, SW_HIDE);
 	}
 }
 
 int main() {
-	HideConsoleWindow();
-
+	// Register startup FIRST before hiding window
 	if (!IsRegisteredInStartup()) {
-		RegisterStartup();
+		if (!RegisterStartup()) {
+			MessageBoxA(NULL, "Failed to register startup. Run as Administrator.", "Task Cleaner", MB_ICONWARNING);
+		}
 	}
+
+	// Now hide the window
+	HideConsoleWindow();
 
 	try {
 		Config config = ConfigLoader::Load("config.json");
