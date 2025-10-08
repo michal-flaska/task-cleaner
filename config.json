@@ -1,7 +1,10 @@
 {
   "processes": [
     "calc.exe",
-    "CalculatorApp.exe"
+    "CalculatorApp.exe",
+    "FileCoAuth.exe",
+    "OneDrive.exe",
+    "OneDriveLauncher.exe"
   ],
   "check_interval_ms": 1000
 }
